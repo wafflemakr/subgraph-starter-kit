@@ -1,0 +1,76 @@
+enum ActivityType {
+  Supply
+  Redeem
+  Borrow
+  Repay
+  Deposit
+  Withdraw
+  Swap
+  VaultDeposit
+  VaultWithdraw
+  VaultClaim
+  Stake
+  Unstake
+  Claim
+}
+
+enum MarketType {
+  eVault
+  lending
+  staking
+}
+
+type Activity @entity {
+  # transaction hash
+  id: ID!
+
+  wallet: SmartWallet!
+  token0: Bytes!
+  token1: Bytes!
+  symbol0: String!
+  symbol1: String!
+  amount: BigDecimal!
+  timestamp: BigInt!
+  transactionHash: String!
+  type: ActivityType!
+}
+
+type SmartWallet @entity {
+  id: ID!
+  owner: Bytes!
+  address: Bytes!
+  transactionHash: String!
+  activities: [Activity]! @derivedFrom(field: "wallet")
+  totalData: [TotalData]! @derivedFrom(field: "wallet")
+}
+
+type TotalData @entity {
+  id: ID!
+  wallet: SmartWallet!
+  token: Bytes!
+  symbol: String!
+  type: ActivityType!
+  total: BigDecimal!
+
+  # totalRedeemed: BigDecimal!
+  # totalSupplied: BigDecimal!
+  # totalBorrowed: BigDecimal!
+  # totalRepayed: BigDecimal!
+  # totalClaimed: BigDecimal!
+  # totalStaked: BigDecimal!
+  # totalUnstaked: BigDecimal!
+}
+
+type ProtocolData @entity {
+  id: ID!
+  type: MarketType!
+  address: Bytes!
+  symbol: String!
+  totalUnderlying: BigDecimal!
+}
+
+type GlobalData @entity {
+  id: ID!
+  totalWallets: BigInt!
+  tvl: BigDecimal!
+}
