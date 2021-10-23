@@ -53,6 +53,12 @@ templates:
           file: ./abis/ERC20SymbolBytes.json
         - name: ERC20NameBytes
           file: ./abis/ERC20NameBytes.json
+        - name: PriceFeed
+          file: ./abis/PriceFeed.json
+        - name: CurvePool
+          file: ./abis/CurvePool.json
+        - name: VaultAdapter
+          file: ./abis/VaultAdapter.json
       eventHandlers:
         - event: LogMint(indexed address,uint256)
           handler: handleSmartWalletLogMint

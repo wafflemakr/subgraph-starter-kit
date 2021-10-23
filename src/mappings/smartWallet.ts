@@ -24,8 +24,10 @@ import {
   fetchTokenSymbol,
   fetchTokenDecimals,
   convertTokenToDecimal,
+  convertUSD,
   formatAddress,
   ADDRESS_ZERO,
+  ZERO,
 } from "../utils";
 
 function storeActivity(event: LogMint, type: string): void {
@@ -40,6 +42,7 @@ function storeActivity(event: LogMint, type: string): void {
   let decimals = fetchTokenDecimals(token);
   let symbol = fetchTokenSymbol(token);
   let realAmount = convertTokenToDecimal(amount, decimals);
+  // let usdValue = convertUSD(realAmount, symbol, token);
 
   let smartWallet = SmartWallet.load(walletAddress.toHexString());
 
@@ -58,13 +61,14 @@ function storeActivity(event: LogMint, type: string): void {
       _activity = new Activity(transactionId);
       _activity.wallet = smartWallet.id;
       _activity.token0 = token;
-      _activity.token1 = ADDRESS_ZERO as Bytes;
+      _activity.token1 = ADDRESS_ZERO;
       _activity.amount = realAmount;
       _activity.symbol0 = symbol;
       _activity.symbol1 = "";
       _activity.timestamp = timestamp;
       _activity.transactionHash = transactionId;
       _activity.type = type;
+      // _activity.usdValue = usdValue;
     }
 
     _activity.save();
@@ -88,6 +92,37 @@ function storeActivity(event: LogMint, type: string): void {
     totalData.total = totalData.total.plus(realAmount);
 
     totalData.save();
+
+    // Global Protocol Data
+
+    let marketType = "";
+
+    if (type == "VaultDeposit" || type == "VaultWithdraw") {
+      marketType = "eVault";
+    } else if (type == "Supply" || type == "Redeem") {
+      marketType = "lending";
+    } else if (type == "Stake" || type == "Unstake") {
+      marketType = "staking";
+    }
+
+    if (marketType != "") {
+      let _protocolData = ProtocolData.load(
+        token.toHexString().concat("-").concat(marketType)
+      );
+
+      if (!_protocolData) {
+        _protocolData = new ProtocolData(token.toHexString());
+        _protocolData.type = marketType;
+        _protocolData.address = token;
+        _protocolData.symbol = symbol;
+        _protocolData.totalUnderlying = realAmount;
+      }
+
+      _protocolData.totalUnderlying =
+        _protocolData.totalUnderlying.plus(realAmount);
+
+      _protocolData.save();
+    }
   }
 }
 
@@ -153,6 +188,7 @@ export function handleSmartWalletLogSwap(event: LogSwap): void {
   let symbol0 = fetchTokenSymbol(token0);
   let symbol1 = fetchTokenSymbol(token1);
   let realAmount = convertTokenToDecimal(amount0, decimals0);
+  // let usdValue = convertUSD(realAmount, symbol0, token0);
 
   let smartWallet = SmartWallet.load(walletAddress.toHexString());
 
@@ -168,6 +204,7 @@ export function handleSmartWalletLogSwap(event: LogSwap): void {
     _activity.timestamp = timestamp;
     _activity.transactionHash = transactionId;
     _activity.type = "Swap";
+    // _activity.usdValue = usdValue;
     _activity.save();
   }
 }

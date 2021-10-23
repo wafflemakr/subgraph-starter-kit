@@ -12,6 +12,7 @@ enum ActivityType {
   Stake
   Unstake
   Claim
+  Unknown
 }
 
 enum MarketType {
@@ -30,6 +31,7 @@ type Activity @entity {
   symbol0: String!
   symbol1: String!
   amount: BigDecimal!
+  # usdValue: BigDecimal!
   timestamp: BigInt!
   transactionHash: String!
   type: ActivityType!
