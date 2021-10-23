@@ -48,7 +48,13 @@ function storeActivity(event: LogMint, type: string): void {
 
   if (smartWallet) {
     // store activity event data
-    let _activity = Activity.load(transactionId);
+
+    let activityId = transactionId
+      .concat("-")
+      .concat(type)
+      .concat("-")
+      .concat(symbol);
+    let _activity = Activity.load(activityId);
 
     // multiple events in the same transaction Hash
     if (
@@ -58,7 +64,7 @@ function storeActivity(event: LogMint, type: string): void {
     ) {
       _activity.amount = _activity.amount.plus(realAmount);
     } else {
-      _activity = new Activity(transactionId);
+      _activity = new Activity(activityId);
       _activity.wallet = smartWallet.id;
       _activity.token0 = token;
       _activity.token1 = ADDRESS_ZERO;
@@ -76,9 +82,9 @@ function storeActivity(event: LogMint, type: string): void {
     // update TotalData schema
     let totalDataId = smartWallet.id
       .concat("-")
-      .concat(symbol)
+      .concat(type)
       .concat("-")
-      .concat(type);
+      .concat(symbol);
     let totalData = TotalData.load(totalDataId);
     if (!totalData) {
       totalData = new TotalData(totalDataId);
@@ -106,14 +112,11 @@ function storeActivity(event: LogMint, type: string): void {
     }
 
     if (marketType != "") {
-      let _protocolData = ProtocolData.load(
-        token.toHexString().concat("-").concat(marketType)
-      );
+      let protocolId = token.toHexString().concat("-").concat(marketType);
+      let _protocolData = ProtocolData.load(protocolId);
 
       if (!_protocolData) {
-        _protocolData = new ProtocolData(
-          token.toHexString().concat("-").concat(marketType)
-        );
+        _protocolData = new ProtocolData(protocolId);
         _protocolData.type = marketType;
         _protocolData.address = token;
         _protocolData.symbol = symbol;
@@ -196,16 +199,28 @@ export function handleSmartWalletLogSwap(event: LogSwap): void {
 
   if (smartWallet) {
     // store activity event data
-    let _activity = new Activity(transactionId);
-    _activity.wallet = smartWallet.id;
-    _activity.token0 = token0;
-    _activity.token1 = token1;
-    _activity.amount = realAmount;
-    _activity.symbol0 = symbol0;
-    _activity.symbol1 = symbol1;
-    _activity.timestamp = timestamp;
-    _activity.transactionHash = transactionId;
-    _activity.type = "Swap";
+    let activityId = transactionId
+      .concat("-")
+      .concat("Swap")
+      .concat("-")
+      .concat(symbol0);
+    let _activity = Activity.load(activityId);
+
+    if (!_activity) {
+      _activity = new Activity(activityId);
+      _activity.wallet = smartWallet.id;
+      _activity.token0 = token0;
+      _activity.token1 = token1;
+      _activity.amount = realAmount;
+      _activity.symbol0 = symbol0;
+      _activity.symbol1 = symbol1;
+      _activity.timestamp = timestamp;
+      _activity.transactionHash = transactionId;
+      _activity.type = "Swap";
+    } else {
+      _activity.amount = _activity.amount.plus(realAmount);
+    }
+
     // _activity.usdValue = usdValue;
     _activity.save();
   }
