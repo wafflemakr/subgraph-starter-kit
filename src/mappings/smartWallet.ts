@@ -111,7 +111,9 @@ function storeActivity(event: LogMint, type: string): void {
       );
 
       if (!_protocolData) {
-        _protocolData = new ProtocolData(token.toHexString());
+        _protocolData = new ProtocolData(
+          token.toHexString().concat("-").concat(marketType)
+        );
         _protocolData.type = marketType;
         _protocolData.address = token;
         _protocolData.symbol = symbol;
