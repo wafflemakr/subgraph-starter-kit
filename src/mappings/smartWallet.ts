@@ -123,8 +123,13 @@ function storeActivity(event: LogMint, type: string): void {
         _protocolData.totalUnderlying = realAmount;
       }
 
-      _protocolData.totalUnderlying =
-        _protocolData.totalUnderlying.plus(realAmount);
+      if (type == "VaultDeposit" || type == "Supply" || type == "Stake") {
+        _protocolData.totalUnderlying =
+          _protocolData.totalUnderlying.plus(realAmount);
+      } else {
+        _protocolData.totalUnderlying =
+          _protocolData.totalUnderlying.minus(realAmount);
+      }
 
       _protocolData.save();
     }
