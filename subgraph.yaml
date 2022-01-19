@@ -7,86 +7,24 @@ dataSources:
   # any other event of an ERC20 token. We even don't know what contract it is. Besides that, the ABI
   # file for that contract was inferred since no contract information or source code is available
   # out there.
-  - name: EthaRegistry
+  - name: ETHAToken
     kind: ethereum/contract
     network: matic
     source:
-      abi: WalletRegistry
-      address: "0x583B965462e11Da63D1d4bC6D2d43d391F79af1f"
-      startBlock: 16875093
+      abi: ERC20
+      address: "0x59e9261255644c411afdd00bd89162d09d862e38"
+      startBlock: 14495253
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
-      file: ./src/mappings/ethaRegistry.ts
+      file: ./src/mappings/etha.ts
       entities:
-        - SmartWallet
-        - TotalSmartWallets
+        - Transfer
+        - Global
       abis:
-        - name: WalletRegistry
-          file: ./abis/EthaRegistry.json
-      eventHandlers:
-        - event: "Created(indexed address,address)"
-          handler: handleSmartWalletCreate
-templates:
-  - kind: ethereum/contract
-    name: SmartWallet
-    network: matic
-    source:
-      abi: SmartWallet
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      file: ./src/mappings/smartWallet.ts
-      entities:
-        - SmartWallet
-        - TotalData
-      abis:
-        - name: SmartWallet
-          file: ./abis/SmartWallet.json
-        - name: WalletRegistry
-          file: ./abis/EthaRegistry.json
         - name: ERC20
           file: ./abis/ERC20.json
-        - name: ERC20SymbolBytes
-          file: ./abis/ERC20SymbolBytes.json
-        - name: ERC20NameBytes
-          file: ./abis/ERC20NameBytes.json
-        - name: PriceFeed
-          file: ./abis/PriceFeed.json
-        - name: CurvePool
-          file: ./abis/CurvePool.json
-        - name: VaultAdapter
-          file: ./abis/VaultAdapter.json
       eventHandlers:
-        - event: LogMint(indexed address,uint256)
-          handler: handleSmartWalletLogMint
-        - event: LogRedeem(indexed address,uint256)
-          handler: handleSmartWalletLogRedeem
-        - event: LogBorrow(indexed address,uint256)
-          handler: handleSmartWalletLogRedeem
-        - event: LogPayback(indexed address,uint256)
-          handler: handleSmartWalletLogPayback
-        - event: LogDeposit(indexed address,uint256)
-          handler: handleSmartWalletLogDeposit
-        - event: LogWithdraw(indexed address,uint256)
-          handler: handleSmartWalletLogWithdraw
-        - event: Claim(indexed address,uint256)
-          handler: handleSmartWalletClaim
-        - event: Staked(indexed address,uint256)
-          handler: handleSmartWalletStaked
-        - event: Unstaked(indexed address,uint256)
-          handler: handleSmartWalletUnstaked
-        - event: VaultDeposit(indexed address,uint256)
-          handler: handleSmartWalletVaultDeposit
-        - event: VaultWithdraw(indexed address,uint256)
-          handler: handleSmartWalletVaultWithdraw
-        - event: VaultClaim(indexed address,uint256)
-          handler: handleSmartWalletVaultClaim
-        - event: LogSwap(indexed address,indexed address,uint256)
-          handler: handleSmartWalletLogSwap
-        # - event: DelegateAdded(address)
-        #   handler: handleDelegateAdded
-        # - event: DelegateRemoved(address)
-        #   handler: handleDelegateRemoved
+        - event: "Transfer(indexed address,indexed address,uint256)"
+          handler: handleTransfer
