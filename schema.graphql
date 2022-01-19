@@ -19,4 +19,5 @@ type Global @entity {
 
   holders: BigInt!
   supply: BigInt!
+  transfers: BigInt!
 }

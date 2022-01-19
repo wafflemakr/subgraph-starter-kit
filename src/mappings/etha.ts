@@ -24,7 +24,10 @@ export function handleTransfer(event: TransferEvent): void {
     globalData = new Global("0");
     globalData.holders = ZERO;
     globalData.supply = ZERO;
+    globalData.transfers = ZERO;
   }
+
+  globalData.transfers = globalData.transfers.plus(ONE);
 
   // FROM user
   let _fromUser = User.load(from.toHexString());
@@ -32,11 +35,15 @@ export function handleTransfer(event: TransferEvent): void {
     _fromUser = new User(from.toHexString());
     _fromUser.balance = ZERO;
   } else {
-    _fromUser.balance = _fromUser.balance.minus(value);
+    if (!_fromUser.balance) _fromUser.balance = ZERO;
 
-    // User with no balance
-    if (_fromUser.balance.equals(ZERO)) {
-      globalData.holders = globalData.holders.minus(ONE);
+    if (from.toHexString() != ADDRESS_ZERO) {
+      _fromUser.balance = _fromUser.balance.minus(value);
+
+      // User with no balance
+      if (_fromUser.balance.equals(ZERO)) {
+        globalData.holders = globalData.holders.minus(ONE);
+      }
     }
   }
   _fromUser.save();
@@ -45,18 +52,21 @@ export function handleTransfer(event: TransferEvent): void {
   let _toUser = User.load(to.toHexString());
   if (!_toUser) {
     _toUser = new User(to.toHexString());
-    globalData.holders = globalData.holders.plus(ONE);
+    _toUser.balance = ZERO;
   }
+  // User with no balance
+  if (_toUser.balance.equals(ZERO))
+    globalData.holders = globalData.holders.plus(ONE);
   _toUser.balance = _toUser.balance.plus(value);
   _toUser.save();
 
   // Minting
-  if (from.equals(ADDRESS_ZERO)) {
+  if (from.toHexString() == ADDRESS_ZERO) {
     globalData.supply = globalData.supply.plus(value);
   }
 
   // Burning
-  if (to.equals(ADDRESS_ZERO)) {
+  if (to.toHexString() == ADDRESS_ZERO) {
     globalData.supply = globalData.supply.minus(value);
   }
 

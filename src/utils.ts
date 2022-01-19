@@ -7,9 +7,8 @@ export let ZERO = BigInt.fromI32(0);
 export let ONE = BigInt.fromI32(1);
 
 // ADDRESSES
-export let ADDRESS_ZERO = Address.fromString(
-  "0x0000000000000000000000000000000000000000"
-);
+export let ADDRESS_ZERO = "0x0000000000000000000000000000000000000000";
+
 export let MATIC_ADDRESS = Address.fromString(
   "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 );
